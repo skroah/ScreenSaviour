@@ -7,15 +7,14 @@ RUNNING = True
 
 class ScreenSaviour(Tkinter.Tk):
     """
-    A simple Tkinter program to move the mouse in windows at some interval, primarily to disable a windows screen saver.
-    Useful if you need it. 
+    A very simple Tkinter program to move the mouse in windows at some interval, primarily to disable a windows screen saver.
+    Useful if you need it in a pinch.
     """
     def __init__(self, parent):
         Tkinter.Tk.__init__(self, parent)
         self.parent = parent
         self.clickInterval = 0
         self.totalRuntime = 0
-        self.RUNNING = True
         print "Initializing ScreenSaviour"
         self.create_interface()
 

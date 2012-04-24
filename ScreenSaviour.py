@@ -38,13 +38,13 @@ class ScreenSaviour(Tkinter.Tk):
         self.clickIntervalVariable.set(u""+str(self.clickInterval))
 
         #Setup buttons
-        start_button = Tkinter.Button(self,text=u"Start!",command=self.OnStartButtonClick)
+        start_button = Tkinter.Button(self,text=u"Start",command=self.OnStartButtonClick)
         start_button.grid(columnspan=2,column=1,row=2)
 
-        stop_button = Tkinter.Button(self,text=u"Stop!",command=self.OnStopButtonClick)
-        stop_button.grid(columnspan=2,column=2,row=2)
+        pause_button = Tkinter.Button(self,text=u"Pause",command=self.OnPauseButtonClick)
+        pause_button.grid(columnspan=2,column=2,row=2)
 
-        exit_button = Tkinter.Button(self,text=u"Exit!",command=self.OnExitButtonClick)
+        exit_button = Tkinter.Button(self,text=u"Exit",command=self.OnExitButtonClick)
         exit_button.grid(columnspan=2,column=3,row=2)
 
     def OnStartButtonClick(self):
@@ -52,16 +52,12 @@ class ScreenSaviour(Tkinter.Tk):
         self.start_loop()
 
     def OnExitButtonClick(self):
-        try:
-            self.process.join(1)
-            self.process.terminate()
-        except Exception:
-            pass
-        finally:
-            sys.exit()
+        print "Exiting ScreenAlive clickInterval=", self.clickInterval
+        self.pause_loop()
+        self.shut_down()
 
-    def OnStopButtonClick(self):
-        self.stop_loop()
+    def OnPauseButtonClick(self):
+        self.pause_loop()
 
     def OnPressEnter(self,event):
         self.extractVariables()
@@ -79,13 +75,16 @@ class ScreenSaviour(Tkinter.Tk):
         self.process = self.process = Process(target=runTarget,args=(self.clickInterval,))
         self.process.start()
 
-    def stop_loop(self):
-        print "Stopping ScreenAlive clickInterval=", self.clickInterval
+    def pause_loop(self):
+        print "Pausing ScreenAlive clickInterval=", self.clickInterval
         try:
             self.process.join(timeout=1)
             self.process.terminate()
         except Exception:
             pass
+
+    def shut_down(self):
+        sys.exit()
 
 def runTarget(click_interval):
     print "Run Target"

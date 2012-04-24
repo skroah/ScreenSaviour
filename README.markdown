@@ -1,6 +1,6 @@
 ## ScreenSaviour
 
-![I will move your mouse....periodically.](saviour.jpg "Screen Saviour")
+![I will move your mouse....periodically.](ScreenSaviour/blob/master/saviour.jpg "Screen Saviour")
 
 ScreenSaviour is a ridiculous code snippet that was written quickly to do one dumb thing--move a windows mouse periodically so as
 to disable an admin controlled windows screen saver.

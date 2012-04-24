@@ -25,7 +25,7 @@ class ScreenSaviour(Tkinter.Tk):
         self.clickIntervalLabelVariable = Tkinter.StringVar()
         self.clickIntervalLabel = Tkinter.Label(self,padx=3,pady=3,textvariable=self.clickIntervalLabelVariable,anchor="w",fg="black")
         self.clickIntervalLabel.grid(column=0,row=0,columnspan=1,sticky='W')
-        self.clickIntervalLabelVariable.set(u"Enter click interval here:")
+        self.clickIntervalLabelVariable.set(u"Enter click interval here (sec.):")
 
         #Setup Labels
         self.intervalErrorLabelVariable = Tkinter.StringVar()

@@ -1,9 +1,10 @@
+from Tkconstants import CENTER
 import Tkinter
+#import Image, ImageTk
 from multiprocessing import Process
 import ctypes
 import time
-
-RUNNING = True
+import sys
 
 class ScreenSaviour(Tkinter.Tk):
     """
@@ -13,8 +14,7 @@ class ScreenSaviour(Tkinter.Tk):
     def __init__(self, parent):
         Tkinter.Tk.__init__(self, parent)
         self.parent = parent
-        self.clickInterval = 0
-        self.totalRuntime = 0
+        self.clickInterval = 840 #14 minutes
         print "Initializing ScreenSaviour"
         self.create_interface()
 
@@ -23,41 +23,54 @@ class ScreenSaviour(Tkinter.Tk):
 
         #Setup Labels
         self.clickIntervalLabelVariable = Tkinter.StringVar()
-        self.clickIntervalLabel = Tkinter.Label(self,textvariable=self.clickIntervalLabelVariable,anchor="w",fg="black")
-        self.clickIntervalLabel.grid(column=0,row=0,columnspan=1,sticky='EW')
+        self.clickIntervalLabel = Tkinter.Label(self,padx=3,pady=3,textvariable=self.clickIntervalLabelVariable,anchor="w",fg="black")
+        self.clickIntervalLabel.grid(column=0,row=0,columnspan=1,sticky='W')
         self.clickIntervalLabelVariable.set(u"Enter click interval here:")
 
-        self.totalRuntimeLabelVariable = Tkinter.StringVar()
-        self.totalRuntimeLabel = Tkinter.Label(self,textvariable=self.totalRuntimeLabelVariable,anchor="w",fg="black")
-        self.totalRuntimeLabel.grid(column=0,row=1,columnspan=1,sticky='EW')
-        self.totalRuntimeLabelVariable.set(u"Enter total runtime here:")
+        #Setup Labels
+        self.intervalErrorLabelVariable = Tkinter.StringVar()
+        self.intervalErrorLabel = Tkinter.Label(self,padx=3,pady=3,textvariable=self.intervalErrorLabelVariable,anchor="w",fg="red")
+        self.intervalErrorLabel.grid(column=0,row=1,columnspan=1,sticky='W')
+        self.intervalErrorLabelVariable.set(u" ")
 
         #Setup Entries
         self.clickIntervalVariable = Tkinter.StringVar()
         self.clickIntervalEntry = Tkinter.Entry(self,textvariable=self.clickIntervalVariable)
-        self.clickIntervalEntry.grid(column=3,row=0,sticky='EW')
+        self.clickIntervalEntry.grid(column=1,row=0,columnspan=2,sticky='W')
         self.clickIntervalEntry.bind("<Return>", self.OnPressEnter)
-        self.clickIntervalVariable.set(u"0")
+        self.clickIntervalVariable.set(u""+str(self.clickInterval))
 
-        self.totalRuntimeVariable = Tkinter.StringVar()
-        self.totalRuntimeEntry = Tkinter.Entry(self,textvariable=self.totalRuntimeVariable)
-        self.totalRuntimeEntry.grid(column=3,row=1,sticky='EW')
-        self.totalRuntimeEntry.bind("<Return>", self.OnPressEnter)
-        self.totalRuntimeVariable.set(u"0")
+        #image
+#        image = Image.open("saviour.jpg")
+#        saviour = ImageTk.PhotoImage(image)
+#        ourSaviour = Tk.Label(image=saviour)
+#        ourSaviour.image = saviour
 
         #Setup buttons
         start_button = Tkinter.Button(self,text=u"Start!",command=self.OnStartButtonClick)
-        start_button.grid(column=1,row=4)
+        start_button.grid(columnspan=2,column=1,row=2)
 
         stop_button = Tkinter.Button(self,text=u"Stop!",command=self.OnStopButtonClick)
-        stop_button.grid(column=2,row=4)
+        stop_button.grid(columnspan=2,column=2,row=2)
+
+        exit_button = Tkinter.Button(self,text=u"Exit!",command=self.OnExitButtonClick)
+        exit_button.grid(columnspan=2,column=3,row=2)
 
     def OnStartButtonClick(self):
         self.extractVariables()
         self.start_loop()
 
+    def OnExitButtonClick(self):
+        print "Exit"
+        try:
+            self.process.join(1)
+            self.process.terminate()
+        except Exception:
+            pass
+        finally:
+            sys.exit()
+
     def OnStopButtonClick(self):
-        self.extractVariables()
         self.stop_loop()
 
     def OnPressEnter(self,event):
@@ -66,26 +79,35 @@ class ScreenSaviour(Tkinter.Tk):
 
     def extractVariables(self):
         self.clickInterval = self.clickIntervalVariable.get()
-        self.totalRuntime = self.totalRuntimeVariable.get()
 
     def start_loop(self):
-        print "Starting ScreenAlive", self.clickInterval, self.totalRuntime
-        self.process = self.process = Process(target=runTarget,args=(self.clickInterval,self.totalRuntime))
+        print "Starting ScreenAlive clickInterval=", self.clickInterval
+        if int(self.clickInterval) < 10:
+            self.intervalErrorLabelVariable.set(u"You don't want a click interval this low!")
+            return
+        self.intervalErrorLabelVariable.set(u"")
+        self.process = self.process = Process(target=runTarget,args=(self.clickInterval,))
         self.process.start()
 
     def stop_loop(self):
-        print "Stopping ScreenAlive", self.clickInterval, self.totalRuntime
-        timeout = int(self.clickInterval)+10
-        self.process.join(timeout=timeout)
-        self.process.terminate()
+        print "Stopping ScreenAlive clickInterval=", self.clickInterval
+        try:
+            self.process.join(timeout=1)
+            self.process.terminate()
+        except Exception:
+            pass
 
-def runTarget(click_interval, totalRuntime):
+def runTarget(click_interval):
     print "Run Target"
-    while RUNNING:
+    while True:
+        print "clickity click"
         ctypes.windll.user32.SetCursorPos(100, 20)
         ctypes.windll.user32.mouse_event(2, 0, 0, 0,0) # left down
         ctypes.windll.user32.mouse_event(4, 0, 0, 0,0) # left up
-        time.sleep(100)
+        time.sleep(int(click_interval))
+    print "Shutting down"
+    sys.exit()
+
 
 if __name__ == "__main__":
     app = ScreenSaviour(None)

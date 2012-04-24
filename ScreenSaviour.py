@@ -1,6 +1,4 @@
-from Tkconstants import CENTER
 import Tkinter
-#import Image, ImageTk
 from multiprocessing import Process
 import ctypes
 import time
@@ -9,13 +7,13 @@ import sys
 class ScreenSaviour(Tkinter.Tk):
     """
     A very simple Tkinter program to move the mouse in windows at some interval, primarily to disable a windows screen saver.
-    Useful if you need it in a pinch.
+    Useful if you need it in a pinch. You will lose control of your machine if you set the click interval too low < 10
+    seconds for example, so I disallow this in the UI. You've been warned.
     """
     def __init__(self, parent):
         Tkinter.Tk.__init__(self, parent)
         self.parent = parent
         self.clickInterval = 840 #14 minutes
-        print "Initializing ScreenSaviour"
         self.create_interface()
 
     def create_interface(self):
@@ -27,24 +25,17 @@ class ScreenSaviour(Tkinter.Tk):
         self.clickIntervalLabel.grid(column=0,row=0,columnspan=1,sticky='W')
         self.clickIntervalLabelVariable.set(u"Enter click interval here (sec.):")
 
-        #Setup Labels
         self.intervalErrorLabelVariable = Tkinter.StringVar()
         self.intervalErrorLabel = Tkinter.Label(self,padx=3,pady=3,textvariable=self.intervalErrorLabelVariable,anchor="w",fg="red")
         self.intervalErrorLabel.grid(column=0,row=1,columnspan=1,sticky='W')
         self.intervalErrorLabelVariable.set(u" ")
 
-        #Setup Entries
+        #Setup Entry
         self.clickIntervalVariable = Tkinter.StringVar()
         self.clickIntervalEntry = Tkinter.Entry(self,textvariable=self.clickIntervalVariable)
         self.clickIntervalEntry.grid(column=1,row=0,columnspan=2,sticky='W')
         self.clickIntervalEntry.bind("<Return>", self.OnPressEnter)
         self.clickIntervalVariable.set(u""+str(self.clickInterval))
-
-        #image
-#        image = Image.open("saviour.jpg")
-#        saviour = ImageTk.PhotoImage(image)
-#        ourSaviour = Tk.Label(image=saviour)
-#        ourSaviour.image = saviour
 
         #Setup buttons
         start_button = Tkinter.Button(self,text=u"Start!",command=self.OnStartButtonClick)
@@ -61,7 +52,6 @@ class ScreenSaviour(Tkinter.Tk):
         self.start_loop()
 
     def OnExitButtonClick(self):
-        print "Exit"
         try:
             self.process.join(1)
             self.process.terminate()
@@ -105,9 +95,6 @@ def runTarget(click_interval):
         ctypes.windll.user32.mouse_event(2, 0, 0, 0,0) # left down
         ctypes.windll.user32.mouse_event(4, 0, 0, 0,0) # left up
         time.sleep(int(click_interval))
-    print "Shutting down"
-    sys.exit()
-
 
 if __name__ == "__main__":
     app = ScreenSaviour(None)
